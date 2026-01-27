@@ -1,13 +1,102 @@
 ---
-title: Hello World
-description: Your first document
+title: Get Started
+description: How to use Mago
 ---
 
-Welcome to the docs! You can start writing documents in `/content/docs`.
+Welcome to Mago Docs!
 
-## What is Next?
+## Introduction
 
-<Cards>
-  <Card title="Learn more about Next.js" href="https://nextjs.org/docs" />
-  <Card title="Learn more about Fumadocs" href="https://fumadocs.dev" />
-</Cards>
+Mago is a JS library for state management that **automatic**, **compact**, **scalable**, **maintainable**, and **easy-to-use**.
+
+It helps you control states easily with concise code and operate a neat structure. Additionally, it helps you control data type safety and minimize errors.
+
+<Callout title="Why Mago?" type="info">
+  Mago was built to solve the complexity of large-scale state management while keeping the developer experience (DX) lightweight and intuitive.
+</Callout>
+
+## Key Features
+
+* **Compact Structure**: No boilerplate, just focus on your logic.
+* **Type Safety**: Built with TypeScript from the ground up.
+* **Scalable**: Perfect for both small apps and large enterprise systems.
+
+## Installation
+
+Mago is available as a package on NPM. You can integrate it into your project using any of the major package managers:
+
+import { Tab, Tabs } from "fumadocs-ui/components/tabs"
+
+<Tabs items={["pnpm", "npm", "yarn", "bun"]}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm add mago
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npm install mago
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn add mago
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bun add mago
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+### First create new Box
+
+`Box` is a concept used to declares `slice` in Mago. It checks and registers initial state and actions (action factory). Then it returns a function to get the new state, an action factory and a subcribe function.
+
+```js
+import { createBox } from "mago"
+
+const initialState = 0
+
+export const counterBox = createBox(initialState, (set) => ({
+  inc: () => set(prev => prev + 1),
+}))
+```
+
+### Then create a store
+
+`Store` helps you register the boxes you create.
+
+```js
+import { createStore } from "mago"
+import { counterBox } from "./boxes/counterBox"
+
+export const store = createStore({
+  counter: counterBox,
+})
+```
+
+### Finally bind your components
+
+You can use the hook anywhere without provider. Do you remember how to use `useState`? This question makes you imagine how Mago would use his hook, right? When your selected state changes, only the consuming components will re-render.
+
+```js
+function SheepCounter() {
+  const [count] = useAppStore(store.counter)
+
+  return <h1>`I have ${count} sheep on my farm`</h1>
+}
+
+function SheepCountAction() {
+  const [,setCount] = useAppStore(store.counter)
+
+  return <button onClick={setCount.inc}>Count</button>
+}
+```
+
+<Callout type="info" emoji="💡">
+  Do you remember how to use `useState`? This question alone helps you imagine how Mago works, right? 
+</Callout>
