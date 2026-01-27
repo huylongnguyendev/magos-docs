@@ -1,0 +1,323 @@
+---
+title: Todo List App
+description: Try using Mago to Todo List App with React
+---
+
+## Building a mini app - Todo List
+
+The **Todo List** is a rite of passage for every developer. It’s the perfect playground to learn how Mago manages collections, handles user interactions, and keeps your UI in sync without the "Provider headache."
+
+In this guide, we"ll build a "Spell List" where you can add, toggle, and filter your daily tasks.
+
+---
+
+## Create Mago"s Structure
+
+To keep your application clean and scalable, Mago encourages a structured approach. Think of it as organizing your spellbooks in a library.
+
+<Callout title="Note" type="info">
+  If you prefer writing in plain JavaScript, you can follow this tutorial. The logic remains exactly the same, just without the type definitions; remember to use the `.js` or `.jsx` extension.
+</Callout>
+
+import { File, Folder, Files } from "fumadocs-ui/components/files"
+
+<Files>
+  <Folder name="src" defaultOpen>
+    <Folder name="store" defaultOpen>
+      <File name="store.ts" />
+      <Folder name ="boxes" defaultOpen>
+        <File name="todo.box.ts" />
+      </Folder>
+    </Folder>
+    <Folder name="components" defaultOpen>
+      <File name="TodoList.tsx" />
+    </Folder>
+    <File name="App.tsx" />
+    <File name="main.tsx" />
+  </Folder>
+  <File name="package.json" />
+  <File name="tsconfig.json" />
+</Files>
+
+---
+
+### Step 1: Create your first box
+
+Open your `todo.box.ts` file, we going to create a new box right there. This box will hold our array of tasks and the logic to manipulate them.
+
+
+```ts
+import { createBox } from "mago-react"
+
+export interface ITodo {
+  id: string
+  name: string
+}
+
+const initialState = {
+  todos: [] as ITodo[]
+}
+
+export const todoBox = createBox(initialState, (set) => ({
+  // ✅ Already implemented for you
+  // 1. Add one todo into todos
+  addTodo: (todo: ITodo) => set(prev => ({
+    ...prev,
+    todos: [...prev.todos, todo]
+  })),
+
+// 🛠️ CHALLENGE: Try to implement these yourself!
+  // 2. Remove one todo in todos
+  removeTodo: (todoId: string) => set(prev => {
+    /* Your logic here using set() */
+  }),
+
+  // 3. Clear all todos at once
+  clearTodo: () => {
+    /* Your logic here using set() */
+  }
+}))
+```
+
+<Callout title="Important!" type="error">
+  Before we move to the next step, you must remember these 2 important rules to avoid errors:
+
+  * **State Integrity**: Mago accepts almost any types and values, except **undefined** and empty object `{}`.
+    * Why? Because of that helps Mago ensures your state always has a `structure` and avoid potential runtime errors (like `typeof undefined`).
+  * **Action Factory**: The `action factory` must be a callback function that returns an object containing action(s) to update your states.
+    * Why? This allows Mago to "inject" the magic set function directly into your logic.
+</Callout>
+
+<Callout title="Pro Tips" type="success">
+  Mago accepts a new value. However, If it's an update to an array, object and calculate based on the current state, using the `prev` callback is highly recommended. Why?
+
+  * **Data Consistency**: Ensures your state always calculated based on the latest state. Preventing logic errors during rapid updates.
+  * **Safety**: Prevents accidental overwrites of other data within the same box when you only intended to change a single unit or property.
+</Callout>
+
+---
+
+### Step 2: Craete a store
+
+`store` helps you control your boxes, you can "call" it using with the hook with easy, while it preventing you from declaring duplicate boxes with different names.
+
+Now open your file named `store.ts` to create new store.
+
+```ts
+import { createStore } from "mago-react"
+import { todoBox } from "./boxes/todo.box.ts"
+
+export const store = createStore({
+  todo: todoBox,
+})
+```
+
+<Callout title={`The "Unique Box" Rule`} type="warning">
+  Once you have defined your Boxes, the next step is to consolidate them into a single Store. The `createStore` function acts as the central hub for your application's state.
+</Callout>
+
+🚫 **Store Constraints**
+To ensure a **Single Source of Truth**, `createStore` enforces a strict rule: **Each Box Instance is allowed to appear only once.**
+
+❌ **The Wrong Way (Duplicate Instance)**:
+This code will fail because the same todoBox is assigned to two different keys.
+
+```ts
+import { createStore } from "mago-react"
+import { todoBox } from "./boxes/todo.box"
+
+// ⛔ ERROR: Box instance already exists in the store
+export const store = createStore({
+  todo: todoBox,
+  newTodo: todoBox, 
+})
+```
+
+<Callout title="Why this strictness?" type="info">
+  * **Avoid Collisions**: Updating `todo` won't accidentally trigger a re-render for components listening to newTodo.
+
+  * **Predictable Logs**: Your re-render logs (like the ones we tested) stay clean and map 1:1 to your logic domains.
+</Callout>
+
+### Step 3: Connect to UI
+
+Once you have the `store`, you use the `useAppStore` hook to connect the logic to the React Component. Mago is optimized to only re-render the components that subscribe to the specific data being changed.
+
+⚡ Smart Subscription
+Unlike standard Context API, where a single change can trigger a cascade of re-renders, Mago uses a subscription model.
+
+---
+
+1. **Dispatching Actions (The Producer)**:
+  In this component, we only need the actions to modify the state. Because we are not using the state value here, this component will not re-render when the global list updates.
+
+
+```tsx
+import { useAppStore } from "mago-react"
+import { store } from "../store/store"
+import { useState } from "react"
+
+function TodoActions() {
+
+  const [value, setValue] = useState<string>("")
+  const [, setTodo] = useAppStore(store.todo)
+
+  const handleAddTodo = (name: string) => {
+    if (!name.trim()) return
+
+    const id = Math.random().toString().substring(2, 9)
+    setTodo.addTodo({ id, name })
+
+    setValue("")
+  }
+
+  return (
+    <div style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      columnGap: "4px"
+    }}>
+      <input
+        style={{
+          display: "block",
+          fontSize: "16px",
+          padding: "4px 8px",
+          borderRadius: "4px"
+        }}
+        type="text"
+        aria-label="add-todo"
+        placeholder="Todo..."
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+      />
+      <button
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          padding: "4px 8px",
+          borderRadius: "4px"
+        }}
+        onClick={() => handleAddTodo(value)}
+      >
+        Add to do
+      </button>
+    </div>
+  )
+}
+
+export default TodoActions
+```
+
+<Callout title="Note" type="info">
+  The `useAppStore` hook is the primary way to interact with your data. It follows a familiar pattern:
+  * **Two-Element Array**: The hook returns an array containing exactly two elements:
+    * **State Value**: The current snapshot of your data.
+    * **Action Factory**: An object containing all the methods you defined in your Box to update the state.
+  
+  * **Performance Optimization**: If your component only needs to trigger actions and doesn't need to display any data, use a comma `,` to skip the first element. This tells Mago to not re-render this component when the state changes.
+</Callout>
+
+<Callout title="Tip" type="success">
+  Skipping the state element (using the `,` syntax) is a powerful way to keep your "Input" or "Button" components fast, as they won't be affected by the size of the list they are updating.
+</Callout>
+
+2. **Displaying the State**: Now, we are going to create a TodoList component to display the data. Unlike the component **used to trigger actions**, here we need the **state value**, which is the `first element` returned by the `useAppStore` hook.
+
+```tsx
+import { useAppStore } from "mago-react"
+import { store } from "../store/store"
+import { useState } from "react"
+
+function TodoList() {
+  const [todos] = useAppStore(store.todo)
+
+  return (
+    <ul style={{
+      border: "1px solid",
+      borderRadius: "4px",
+      padding: "4px",
+      minHeight: "300px"
+    }}>
+      {
+        todos.todos.map(todo =>
+          <li
+            key={todo.id}
+            style={{
+              listStyle: "none",
+              padding: "8px",
+              borderRadius: "4px",
+              fontSize: "16px",
+              fontWeight: "600",
+              transition: "all .3s ease",
+            }}
+          >
+            {todo.name}
+          </li>)
+      }
+    </ul>
+  )
+}
+
+export default TodoList
+```
+
+<Callout title="Note" type="info">
+  Since you "called" the `state` in this component, it will re-render whenever the `state` changes. This **only happens** to components that **explicitly destructure** or **use the `state` element** from the hook.
+</Callout>
+
+<Callout title="WARNING: Performance Pitfalls" type="warning">
+  Get acquainted with Mago through this example, you must to remember two things to make your app be slow:
+
+  * **The Comma Rule `,`**: In this `TodoActions` component, we're used `const [, setTodo]`. If you forget the comma and write `const [todoState, setTodo]`, it will be **re-render unnecessarily** whenever you add a new task, even though it doesn't display that state.
+
+  * **Selective Subscription**:
+    * The `TodoActions` component only uses `actions`. Because of that, it stays "sleeping" and `remains perfectly` still even when the state changes.
+
+    * The `TodoList` component "calls" the `state`, which tells Mago to "wake it up" and trigger a re-render whenever the data updates.
+</Callout>
+
+Now you can add those components to `App.tsx` to test it.
+
+```tsx
+import TodoActions from "./components/TodoActions"
+import TodoList from "./components/TodoList"
+
+
+function App() {
+
+  return (
+    <>
+      <h1 style={{ textAlign: "center", fontSize: "40px" }}>Todo List</h1>
+      <div style={{
+        margin: "0 auto",
+        width: "100%",
+        maxWidth: "720px",
+      }}>
+        <TodoActions />
+        <TodoList />
+      </div>
+    </>
+  )
+}
+
+export default App
+
+```
+
+---
+
+🏁 Finish the Journey
+Okay! Now you know how to use Mago. But to truly master it, you should complete the app yourself. We’ve built the foundation together, now it's your turn to handle the rest of the logic.
+
+🛠️ Your Mission:
+Go back to your `todo.box.ts` and implement the remaining actions:
+
+`removeTodo`: Use .filter() to remove a task by its ID.
+
+`clearTodo`: Reset the todos array to empty [].
+
+<Callout title="Tip" type="success">
+  In this example, you can even try to **create a new Box** specifically to handle these management actions. Mago allows you to split logic into multiple boxes to keep your code clean and organized!
+</Callout>

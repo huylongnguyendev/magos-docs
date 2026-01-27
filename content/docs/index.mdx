@@ -21,7 +21,11 @@ It helps you control states easily with concise code and operate a neat structur
 * **Type Safety**: Built with TypeScript from the ground up.
 * **Scalable**: Perfect for both small apps and large enterprise systems.
 
-## Installation
+## Quick Start
+
+You can start to use the Mago and setup quickly here.
+
+### Installation
 
 Mago is available as a package on NPM. You can integrate it into your project using any of the major package managers:
 
@@ -57,7 +61,7 @@ import { Tab, Tabs } from "fumadocs-ui/components/tabs"
 `Box` is a concept used to declares `slice` in Mago. It checks and registers initial state and actions (action factory). Then it returns a function to get the new state, an action factory and a subcribe function.
 
 ```js
-import { createBox } from "mago"
+import { createBox } from "mago-react"
 
 const initialState = 0
 
@@ -65,19 +69,22 @@ export const counterBox = createBox(initialState, (set) => ({
   inc: () => set(prev => prev + 1),
 }))
 ```
+---
 
 ### Then create a store
 
 `Store` helps you register the boxes you create.
 
 ```js
-import { createStore } from "mago"
+import { createStore } from "mago-react"
 import { counterBox } from "./boxes/counterBox"
 
 export const store = createStore({
   counter: counterBox,
 })
 ```
+
+---
 
 ### Finally bind your components
 
