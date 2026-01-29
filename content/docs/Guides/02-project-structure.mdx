@@ -1,0 +1,85 @@
+---
+title: Project Structure
+description: How to setup a structure for your project
+---
+
+For Magos to work effectively, we recommend using a clear directory structure. This make you manage the states easier, and it's more scalable and maintainable.
+
+## 📂 Suggested folder structure
+
+Here's a common organizational structure in real-world projects:
+
+import { File, Folder, Files } from "fumadocs-ui/components/files"
+
+<Files> 
+  <Folder name="src" defaultOpen> 
+    <Folder name="store" defaultOpen> 
+      <Folder name="boxes" defaultOpen> 
+        <File name="counterBox.ts" />
+        <File name="authBox.ts" /> 
+        <File name="themeBox.ts" /> 
+      </Folder> 
+      <File name="store.ts" />
+    </Folder> 
+    <File name="main.ts" /> 
+    <File name="App.tsx" /> 
+  </Folder>
+</Files>
+
+### For Simple Vanilla JS projects
+
+If you're building a project without a **framework** or **complex bundling tools**, you can follow the simplified structure below:
+
+<Files>
+  <Folder name="my-awesome-app" defaultOpen>
+    <Folder name="js" defaultOpen> 
+    <Folder name="store" defaultOpen> 
+      <File name="counterBox.js" /> 
+      <File name="store.js" /> 
+    </Folder> 
+    <File name="main.js" />
+  </Folder> 
+    <File name="index.html" />
+  </Folder>
+</Files>
+
+### ⚠️ Key Considerations for Vanilla:
+
+* **Extensions**: Always use `.js` for your `files`.
+
+* **Module Type**: When linking your JavaScript in `index.html`, remember to use `type="module"`:
+
+```html
+<script type="module" src="./js/app.js"></script>
+```
+* **Explicit Imports**: In a browser-native environment, you must **include** the **file extension** in your `import` statements:
+
+```js
+import { store } from "./store/store.js"; // Note the .js extension
+```
+
+---
+
+## 📝 Role of each component
+
+* `boxes/`: Contains the logical definitions for your state. Each file represents a specific domain of state (e.g., auth, counter, or theme) rather than putting everything in one place.
+
+* `store.ts`: The central configuration file that combines all of your boxes into a unique, global store using `createStore`.
+
+---
+
+## 💡 Why should it be organized this way?
+
+**Scalability**: Easily add 10 or 100 boxes **without messing up** the main file.
+
+**Teamwork**: **Minimize code conflicts** when multiple team members are working on different features simultaneously.
+
+**Readability**: By look at the `boxes/`, anyone can **instantly understand** which state domains are being managed in your app.
+
+<Callout title="Note" type="info">
+* Although Magos **dosen't force** you to follow this specific structure, this is the **recommend "Best Practice"** to keep your application **clean, organized** and **easy to maintain** as it grows.
+
+* **For JavaScript user**: Magos is built with TypeScript but works perfectly in pure JavaScript environments. Simply change the file extensions from `.ts` to `.js` and remove the type declarations in the next tutorial.
+</Callout>
+
+---

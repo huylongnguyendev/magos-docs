@@ -1,0 +1,88 @@
+---
+title: Installation
+description: How to install the Magos into your Project
+---
+
+To install **Magos** into your project, you can use any of the major package managers. **Magos** is lightweight and designed to work seamlessly across different environments.
+
+## 📦 **Installation**
+Choose the command that matches your preferred package manager:
+
+import { Tab, Tabs } from "fumadocs-ui/components/tabs"
+
+<Tabs items={["pnpm", "npm", "yarn", "bun"]}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm add magos
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npm install magos
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn add magos
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bun add magos
+    ```
+  </Tab>
+</Tabs>
+
+**Magos** is constantly evolving with better type inference and performance optimizations. To ensure you are using the latest features (like the new unbox API), run the following command:
+
+<Tabs items={["pnpm", "npm", "yarn", "bun"]}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm add magos@latest
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npm install magos@latest
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn add magos@latest
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bun add magos@latest
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## ⚙️ Requirements
+
+Magos is designed to be modern and fast. To ensure the best experience, please check the following requirements:
+
+* **TypeScript**: version 4.5+ (recommended for full type safety).
+
+* **React**: version 18.0+.
+
+* **Runtime**: Works in all modern browsers and Node.js environments.
+
+---
+
+## 🏗️ What's next?
+Now that Magos is part of your project, you're ready to start structuring your state. We recommend following this path:
+
+* **Create your first Box**: Learn how to define state and actions.
+
+* **Setup a Store**: Combine multiple boxes into a single, organized store.
+
+* **Connect to UI**: Choose between React or Vanilla JS to bring your state to life.
+
+<Callout  title="Tips" type="success">
+  Magos is tree-shakable. Only the parts you use `Vanilla` or `React` will end up in your final bundle!
+</Callout>
+
+---
