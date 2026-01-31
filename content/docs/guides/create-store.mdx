@@ -1,0 +1,60 @@
+---
+title: Create a Store
+description: How to create and use the store
+---
+
+## What is a Store?
+
+Once your application grows and you have **multiple boxes**, you need a centralized place to manage them. This is where the **Store** comes in.
+
+The Store acts as a **Global Container** (or a "Master Archive") that gathers all your individual Boxes. It provides a unified interface for your UI to access any state or action from across your entire application.
+
+**🧩 Why do you need a Store?**
+
+* **Centralization**: Instead of importing 10 different boxes into one component, you just connect to the Store.
+* **Organization**: It keeps your state architecture clean and scalable.
+* **Coordination**: It allows different boxes to exist together in a single, manageable ecosystem.
+
+### 1. Creating a Store
+
+To create a Store, **Magos** provides a simple function called `createStore`. It takes an object where each key represents a name for your box, and the value is the Box instance itself.
+
+```js
+import { createStore } from "magos";
+import { authBox } from "./authBox";
+import { cartBox } from "./cartBox";
+
+// The Store is a collection of your Boxes
+export const store = createStore({
+  auth: authBox,
+  cart: cartBox
+});
+```
+
+<Callout title="Key Points" type="info">
+  * **The Keys matter**: The names you give here (e.g., auth, cart) will be the keys you use to access those boxes from the Store.
+  * **Centralized Dispatch**: The Store automatically gathers all actions from your boxes, making them easy to trigger from anywhere.
+  * **Single Source of Truth**: Even if you have 100 boxes, you only need to export this one store to power your entire app.
+</Callout>
+
+<Callout title="Important" type="warning">
+  The `createStore` accepts an object containing a **unique Box instance**.
+</Callout>
+
+### 2. How does the store work?
+
+In the last guide, the `magos_id` was mentioned. You might wonder why it exists if you don't need to use it manually.
+
+The **store** uses this Internal ID as a fingerprint for each Box. When you register your boxes in the `createStore`, the **store** scans the `magos_id` of each box to ensure there are no duplicates.
+  
+  * **Strict Validation**: If the object contains at least two duplicate boxes, createStore will throw an error to prevent state conflicts.
+  * **Integrity**: If everything is unique, it returns the Store object, ready for use.
+
+**Why is this great?**
+
+Because **Magos** tracks boxes by their **internal IDs**, you don't need to worry about the variable name of the Box and the Key in the Store being the same. They are independent.
+
+
+<Callout title="Note" type="info">
+  You can also use the `boxes` independently, but if you have more than three boxes, you should use the store for better **control** and **maintainability**.
+</Callout>

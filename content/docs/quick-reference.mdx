@@ -1,0 +1,169 @@
+---
+title: Quick Reference
+description: Quick lookup for all Magos functions
+---
+
+**Magos** resolves around four main functions to hanlde all State Management from **Vanilla JS** to **React**.
+
+### 1. `createBox`
+
+import { Tabs, Tab } from "fumadocs-ui/components/tabs"
+
+<Tabs items={["TypeScript", "JavaScript"]}>
+  <Tab value="TypeScript">
+    ```typescript
+    import { createBox } from "magos"
+
+    interface CountState {
+      count: number
+    }
+
+    const initialState: CountState = {
+      count: 0
+    }
+
+    export const counterBox = createBox(initialState, (set) => ({
+        inc: () => set(prev => ({ count: prev.count + 1 })),
+        reset: () => set({ count: 0 })
+      })
+    );
+    ```
+  </Tab>
+  <Tab value="JavaScript">
+    ```javascript
+    import { createBox } from "magos"
+
+    const initialState = {
+      count: 0
+    }
+
+    const counterBox = createBox(initialState, (set) => ({
+        inc: () => set(prev => ({ count: prev.count + 1 })),
+        reset: () => set({ count: 0 })
+      })
+    );
+    ```
+  </Tab>
+</Tabs>
+
+<Callout title="Tips" type="success">
+  * **initialState** does not accept `undefined`, empty object `{}` and `function`.
+  * If `typeof` the state is **Primitive**, you don't need to contain it inside the `object`.
+  * You should use `anonymous arrow function` for the second parameter and use `prev` keyword for modify the state.
+  * The `actionFactory` must return an object containing `actions`.
+  * You can use the Box without the store but if you have more than three boxes, use them with the store.
+</Callout>
+
+---
+
+### 2. `createStore`
+import { createStore } from "magos"
+
+```js
+export const store = createStore({
+  counter: counterBox,
+  // ... add your boxes here
+});
+```
+
+<Callout title="Tip" type="success">
+  * Using the store allows you to avoid having to import invidiual box into a single component.
+  * It helps you avoid duplicates the boxes and easy to maintain.
+</Callout>
+
+---
+
+### 3. `unbox` (Vanilla JS)
+
+```js
+import { unbox } from "magos/vanilla"
+// import the store if you create it in another file
+
+const tags = document.querySelectorAll(".count");
+
+const [state, actions, off] = unbox(store.counterBox, displays, s => s.count);
+
+document.querySelector("#btn-plus").onclick = actions.inc;
+
+// Suppose after 10 seconds you want to stop synchronizing this cluster.
+setTimeout(() => {
+  console.log("Disconnect from synchronization....");
+  off(); // Freeing up memory will prevent the 'targs' tabs from displaying numbers again.
+}, 10000);
+```
+
+<Callout title="Tip" type="success">
+* **Tuple Return**: unbox returns [state, actions, unsubscribe]. Use array destructuring to grab only what you need.
+* **Omit with Commas**: Use commas , as placeholders to skip unused elements (e.g., const [, actions] = ...).
+* **First Element Only**: To perform a "read-only" sync, simply use const [state] = unbox(...). No trailing commas are required.
+* **Batch Synchronization**: Pass an array or a NodeList as the second parameter to keep multiple UI elements in sync simultaneously.
+</Callout>
+
+**Exmaple #1: Flexible Destructuring**
+
+```js
+// If you don't need the state
+const [, actions, off] = unbox(store.counterBox, tags, s => s.count);
+// If you don't need both the state and the actions
+const [,, off] = unbox(store.counterBox, tags, s => s.count);
+// If you just need the state
+const [state] = unbox(store.counterBox, tags, s => s.count);
+```
+
+**Exmaple #2: Multi-target Sync**
+```js
+const displays = [
+  document.querySelector("#nav-cart"),
+  document.querySelector("#footer-cart")
+];
+
+// Pass an array to sync multiple DOMs with a single box
+const [state] = unbox(cartBox, displays, s => s.totalItems);
+```
+
+---
+
+### 4. `useAppStore` (React.js)
+
+```js
+import { useAppStore } from 'magos/react';
+// import the store with current path
+function Counter() {
+
+  const [state, actions] = useAppStore(store.counterBox);
+
+  return (
+    <div>
+      <h1>{state.count}</h1>
+      <button onClick={actions.inc}>+</button>
+    </div>
+  );
+}
+```
+
+<Callout title="Tip" type="success">
+* **Tuple Return**: `useAppStore` returns `[state, actions]`. Destructure them to use within your component.
+* **Omit with Commas**: Use a comma `,` to skip the state if you only need actions. This prevents unnecessary re-renders (see Example below).
+* **First Element Only**: If you only need to display data, use `const [state] = useAppStore(...)`.
+* **Auto Cleanup**: Unlike `unbox`, you don't need an `off()` function. **Magos** handles subscriptions and memory cleanup automatically when the component unmounts.
+</Callout>
+
+**Example: Performance Optimization**
+
+```js
+// ✅ High Performance: This component NEVER re-renders when count changes
+function IncrementButton() {
+  const [, actions] = useAppStore(counterBox);
+  
+  console.log("Button rendered only once!"); 
+  return <button onClick={actions.inc}>Increment</button>;
+}
+
+// ℹ️ Regular: This component re-renders every time count changes
+function Display() {
+  const [state] = useAppStore(counterBox);
+  return <span>{state.count}</span>;
+}
+```
+
+---

@@ -1,0 +1,201 @@
+---
+title: Create your first Box
+description: How to create and use the Box
+---
+
+## What is a Box?
+
+The `box` in **Magos** is a fundamental unit where you define your **State** and its associated **Actions**. It encapsulates logic and ensures that your data can only be modified in predictable ways.
+
+import { Tab, Tabs } from "fumadocs-ui/components/tabs"
+
+<Tabs items={["TypeScript", "JavaScript"]}>
+  <Tab value="TypeScript"> 
+    ```typescript
+    import { createBox } from "magos";
+
+    // 1. Initial state (can be number, string, object, or array)
+    const initialState = 0;
+
+    // 2. Create the Box with actions
+    export const counterBox = createBox(initialState, (set) => ({
+      inc: () => set((prev) => prev + 1),
+      dec: () => set((prev) => prev - 1),
+      reset: () => set(0),
+}));
+    ```
+  </Tab>
+  <Tab value="JavaScript"> 
+    ```javascript 
+    import { createBox } from "magos";
+
+    // 1. Initial state (can be number, string, object, or array)
+    const initialState = 0;
+
+    // 2. Create the Box with actions
+    export const counterBox = createBox(initialState, (set) => ({
+      inc: () => set((prev) => prev + 1),
+      dec: () => set((prev) => prev - 1),
+      reset: () => set(0),
+    }));
+    ```
+
+  </Tab>
+</Tabs>
+
+<Callout title="Important Note" type="warning">
+  **For TypeScript User**: If your `initialState` uses **Complex Reference Types** (such as object, array, nested structures), it is highly recommended a specific type for it. This ensures full type-safety across your actions.
+</Callout>
+
+**Exmaple**
+
+```js
+interface InitState {
+  name: string
+  age: number
+  email: string
+}
+
+const initialState: InitState = {
+  name: ""
+  age: 18
+  email: "example@email.com"
+}
+
+```
+
+---
+
+## What parameters does the `createBox` allow?
+
+The `createBox` function is the **starting point** for most of your logic. To use it effectively, you nedd to understand **two primary parameters** it accepts:
+
+### 1. The `initialState`
+
+The `initialState` is the represents the dynamic data that your UI will display. While it looks like a normal variable, it is much more powerful because it is **reactive**.
+
+To ensure **stability** and **predictable** Type Interface, the `createBox` accepts almost any value **except**:
+
+  * `undefined`: State must always have a **starting value** to avoid runtime crashes.
+  * Empty object `{}`: You should **define** the structure of your `object`, so Magos and TypeScript can **understand** the data shape from the start.
+
+**Example**:
+
+**🟢 Do**:
+
+```js
+  const userData = {
+    user: [], // Empty Array had accepted
+    loading: false
+  }
+  
+  // #or
+
+  const student = {
+    name: ""
+    age: 0, // or another default age you want
+    email: "example@email.com"
+    address: "",
+  }
+```
+
+<Callout title="Tips" type="success">
+  Even if you don't have data yet (e.g., waiting for an API), you should provide a `placeholder` structure. An **empty array** is a great way to tell Magos: "This will be a list."
+</Callout>
+
+**🔴 Don't**:
+
+```js
+  const userData = undefined
+  // or
+  const student = {}
+
+```
+
+**⚠️ Can but Notice**:
+
+```js
+  const userData = {
+    user: {}, // Empty Array had accepted
+    loading: false
+  }
+  
+  // #or
+
+  const student = {
+    name: undefined
+    age: 0, // or another default age you want
+    email: "example@email.com"
+    address: "",
+  }
+```
+
+<Callout title="Notic" type="warning">
+  * **Nested Undefined/Empty Objects**: Having undefined or an empty object {} inside a nested property is acceptable. However, you should only use this when the incoming data structure is unpredictable or when you are certain you can manage the logic safely.
+  * **Structure Integrity**: If you overwrite the state directly, you must ensure the new data maintains the same structure as the initialState to avoid breaking UI components or TypeScript contracts.
+</Callout>
+
+### 2. The `actionFactory`
+
+The `actionFactory` is a function that returns an object containing all of actions. The `actions` are used to modify the `state`. To use the `actionFactory`, using the `set` keyword (callback function) to declare.
+
+```js
+  export const counterBox = createBox(initialState, (set) => ({
+    //... write your actions here
+  }));
+```
+
+<Callout title="Notic" type="warning">
+  The `actionFactory` must return an object containing `actions`.
+</Callout>
+
+<Callout title="Tips" type="success">
+  **Magos** recommends using an `anonymous arrow function` for brevity. This is the designated place to define all your business logic and state transitions.
+</Callout>
+
+**🔑 The Power of `set`**
+
+The `set` function is your primary tool for state transitions. It accepts a **single parameter**: a callback function that receives the latest state as its argument.
+
+**🔄 Functional Updates (Recommended)**
+**Magos** strongly recommends using the `prev` pattern. This ensures you are always working with the most recent data, even if multiple updates are happening at the same time.
+
+```js
+// ✅ Safe: Always uses the latest state
+increment: () => set((prev) => prev + 1),
+
+// ✅ Safe: Merging objects
+updateName: (newName) => set((prev) => ({ ...prev, name: newName })),
+```
+
+**🎯 Why use `prev`?**
+
+* **Safety**: It prevents bugs caused by "stale" (old) data during asynchronous operations.
+* **Predictability**: You always know the update is based on the current "truth" of the Box.
+* **Immutability**: It encourages returning a new state instead of mutating the old one.
+
+### 3. What does box return?
+
+When you call `createBox`, it returns a Box Instance. This instance is an object that contains everything you need to interact with your state.
+
+A Box instance typically consists of two main parts:
+
+* **getState function**: The function returns the current value of your data.
+* **actions**: The object contains the methods defined in the actionFactory to update the data.
+* **subscribe**: A function that allows you to listen for any changes to the state. It takes a callback that fires every time the Box updates.
+* **magos_id**: An internal unique identifier used by the Store to manage the Box.
+
+In the [next guide](04-create-a-store), we will explain the `magos_id` in detail and how to use `subscribe` in the [Subscriptions Guide](05-subscriptions)
+
+---
+
+<Callout title="Quick Summary" type="info">
+  * The `createBox` has two required parameter. The frist one is the `initialState` and the other is the `actionFactory`.
+  * The `initialState` can be almost value exclude `undefined` and **empty object** `{}`. It represents the dynamic state.
+  * The `actionFactory` is a callback function where you define your logic. It provides you with a **dispatcher** (named `set`) to update your state.
+  * The `actionFactory` must return an object containing `actions`.
+</Callout>
+
+---
+
+

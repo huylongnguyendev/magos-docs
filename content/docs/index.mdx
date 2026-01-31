@@ -1,18 +1,16 @@
 ---
 title: Get Started
-description: How to use Mago
+description: How to use Magos
 ---
-
-Welcome to Mago Docs!
 
 ## Introduction
 
-Mago is a JS library for state management that **automatic**, **compact**, **scalable**, **maintainable**, and **easy-to-use**.
+Magos is a JS library for state management that **compact**, **scalable**, **maintainable**, and **easy-to-use**.
 
 It helps you control states easily with concise code and operate a neat structure. Additionally, it helps you control data type safety and minimize errors.
 
-<Callout title="Why Mago?" type="info">
-  Mago was built to solve the complexity of large-scale state management while keeping the developer experience (DX) lightweight and intuitive.
+<Callout title="Why Magos?" type="info">
+  Magos was built to solve the complexity of large-scale state management while keeping the developer experience (DX) lightweight and intuitive.
 </Callout>
 
 ## Key Features
@@ -21,31 +19,35 @@ It helps you control states easily with concise code and operate a neat structur
 * **Type Safety**: Built with TypeScript from the ground up.
 * **Scalable**: Perfect for both small apps and large enterprise systems.
 
-## Installation
+## Quick Start
 
-Mago is available as a package on NPM. You can integrate it into your project using any of the major package managers:
+You can start to use the Magos and setup quickly here.
+
+### Installation
+
+Magos is available as a package on NPM. You can integrate it into your project using any of the major package managers:
 
 import { Tab, Tabs } from "fumadocs-ui/components/tabs"
 
 <Tabs items={["pnpm", "npm", "yarn", "bun"]}>
   <Tab value="pnpm">
     ```bash
-    pnpm add mago
+    pnpm add magos
     ```
   </Tab>
   <Tab value="npm">
     ```bash
-    npm install mago
+    npm install magos
     ```
   </Tab>
   <Tab value="yarn">
     ```bash
-    yarn add mago
+    yarn add magos
     ```
   </Tab>
   <Tab value="bun">
     ```bash
-    bun add mago
+    bun add magos
     ```
   </Tab>
 </Tabs>
@@ -54,10 +56,10 @@ import { Tab, Tabs } from "fumadocs-ui/components/tabs"
 
 ### First create new Box
 
-`Box` is a concept used to declares `slice` in Mago. It checks and registers initial state and actions (action factory). Then it returns a function to get the new state, an action factory and a subcribe function.
+`Box` is a concept used to declares `slice` in Magos. It checks and registers initial state and actions (action factory). Then it returns a function to get the new state, an action factory and a subcribe function.
 
 ```js
-import { createBox } from "mago"
+import { createBox } from "magos"
 
 const initialState = 0
 
@@ -65,13 +67,14 @@ export const counterBox = createBox(initialState, (set) => ({
   inc: () => set(prev => prev + 1),
 }))
 ```
+---
 
 ### Then create a store
 
-`Store` helps you register the boxes you create.
+`Store` helps you register and manage the boxes you created.
 
 ```js
-import { createStore } from "mago"
+import { createStore } from "magos"
 import { counterBox } from "./boxes/counterBox"
 
 export const store = createStore({
@@ -79,11 +82,18 @@ export const store = createStore({
 })
 ```
 
+---
+
 ### Finally bind your components
 
-You can use the hook anywhere without provider. Do you remember how to use `useState`? This question makes you imagine how Mago would use his hook, right? When your selected state changes, only the consuming components will re-render.
+#### For React
+
+You can use the hook anywhere without `provider`. Do you remember how to use `useState`? This question makes you imagine how Magos would use his hook, right? When your selected state changes, only the consuming components will re-render.
 
 ```js
+import { useAppStore } from "magos/react"
+import { store } from "@/store/store"
+
 function SheepCounter() {
   const [count] = useAppStore(store.counter)
 
@@ -97,6 +107,55 @@ function SheepCountAction() {
 }
 ```
 
-<Callout type="info" emoji="💡">
-  Do you remember how to use `useState`? This question alone helps you imagine how Mago works, right? 
+<Callout title="Note" type="info">
+  Do you remember how to use `useState`? This question alone helps you imagine how Magos works, right? 
 </Callout>
+
+#### For Vanilla
+
+If you're using `Vanilla JS`, use the `unbox` method to automatically synchronize your state with DOM elements. It handles state selection, UI updates, and provides a cleanup mechanism.
+
+```js
+import { unbox } from "magos/vanilla"
+import { store } from "@/store/store"
+
+/**
+ * 1. Synchronizing State to UI
+ * Magos will automatically update the #sheep-display content
+ */
+export function setupSheepCounter() {
+  const element = document.querySelector("#sheep-display")
+
+  // unbox returns [state, actions, unsubscribe]
+  const [, , unsub] = unbox(
+    store.counter, 
+    element, 
+    (state) => `I have ${state} sheep on my farm`
+  )
+
+  // Call unsub() to stop updates when the element is removed
+  return unsub 
+}
+
+/**
+ * 2. Handling Actions
+ * Access actions directly to bind events to your UI
+ */
+export function setupSheepCountAction() {
+  const element = document.querySelector("#count-button")
+  
+  // We just need to get the actions for handling events
+  const [, actions] = unbox(store.counter, element)
+
+  const handleIncrement = () => actions.inc()
+  element.addEventListener('click', handleIncrement)
+
+  // Clean up both the Event Listener and the Unbox subscription
+  return () => {
+    element.removeEventListener('click', handleIncrement)
+    unsub() // Always clean up to prevent memory leaks!
+  }
+}
+```
+
+---

@@ -1,0 +1,100 @@
+---
+title: Subscriptions
+description: What is subscriptions and how to use it
+---
+
+## Subscriptions in Action
+
+The `subscribe` method is the heartbeat of **Magos**. It’s the mechanism that notifies the world whenever your state changes. To see its true power, let’s look at how Magos uses it to power both **Vanilla JS** and **React**.
+
+### 1. Understanding the `subscribe` Engine
+
+Before using automatic tools such as `unbox` or `useAppStore`, you need to understand what dose `subscribe` work.
+
+In essence, `subscribe` is a **Pattern Observer**. It establishes a direct link between **State** and **Effect**. Whenever, the `set` function is called inside your Box, the **Box instance** performs a loop:
+
+* **Update**: It calculates the new state.
+* **Notify**: It looks at its internal list of subscribers and instantly calls every "callback" function with that new state.
+
+**The "Contract" of a Subscription**
+Every subscription follows a simple two-step lifecycle:
+
+```js
+// 1. Register: "Hey Box, let me know when you change!"
+const unsubscribe = counterBox.subscribe((newState) => {
+  console.log("State changed to:", newState);
+});
+
+// 2. Cleanup: "I'm done listening, stop notifying me."
+unsubscribe();
+```
+
+### 2. Implementation
+
+**Magos** doesn't encourage you to manually write DOM update functions or manage listeners. Instead, the `subscribe` engine is used by **Magos's built-in tools** to handle the heavy lifting for you.
+
+#### 🛠️ For Vanilla JS: The `unbox` Helper
+
+The `unbox` function is not just a data listener, it is an "Intelligence Synchornous Machine". It bridges your state and the UI with high precision:
+
+* **Smart Selector**: You don't need to select all the data in the object. Use `selector` (the 3rd argument) to grab the specific data you need (e.g., `s => s.user.name`).
+* **Auto-Detection**: It detects if the target elements are `input`, `textarea`, or `select` to update their `.value`. For other tags like `div` or `span`, it updates the `.textContent`.
+* **Efficiency (Diffing)**: It doesn't blindly overwrite the DOM. It always compares the current UI value with the new state. It only triggers a DOM update if it notices a **difference**, preventing unnecessary browser reflows.
+
+```js
+// A single line that handles selection, detection, and efficient updating
+const [state, actions, unsubscribe] = unbox(cartBox, '.total-price', s => s.total);
+```
+
+The "Intelligence Synchronous Machine" (`unbox`) isn't limited to one element. It can handle a whole collection of UI parts simultaneously.
+
+Instead of a single element, you can pass a Collection (an Array of elements, a NodeList, or an HTMLCollection).
+
+* **One-to-Many**: You can sync a single Box to multiple UI locations (e.g., updating the "Price" in both the shopping cart and the checkout button at the same time).
+
+* **Smart Filtering**: Magos automatically skips any invalid elements in your collection, ensuring the sync never crashes.
+
+**Example**:
+
+1. **Your HTML file**
+
+```html
+<span class="count-badge">0</span>
+<input type="number" class="count-input" />
+<div class="count-display">0</div>
+
+<button id="add-btn">+ Add</button>
+```
+
+2. **Use the `unbox`**
+
+Instead of using the `forEach` method to update for each DOM manually — like checking if it needs `.value` for inputs or `.textContent` for `spans` — you just need to pass them all to unbox.
+
+```js
+// Step 1: Declare the elements need to use the `unbox` (NodeList or Array)
+const allDisplays = document.querySelectorAll('.count-badge, .count-display');
+const inputField = document.querySelector('.count-input');
+const addBtn = document.querySelector('#add-btn');
+
+// Step 2: "Plug" all of the element into the unbox
+// Magos notice input or span/div element to update right way
+const [state, actions] = unbox(counterBox, [inputField, ...allDisplays]);
+
+// Step 3: Assign a value to the button
+addBtn.onclick = actions.inc;
+```
+
+---
+
+#### ⚛️ For React: The useAppStore Hook
+
+Similarly, **React** also has its own world. You don't need to manually manage listeners or worry about when to re-render. The `useAppStore` hook takes the `subscribe` function from your Box and plugs it directly into the **"React's Heart"**.
+
+* **Heartbeat Sync**: You don't need to tell **React** when to update. Every time the Box state changes, it sends a "pulse" through the subscription, and your component re-renders **automatically** with the fresh data.
+* **Auto-Lifecycle**: You don't need to worry about memory leaks. When the component unmounts, the hook **automatically** disconnects the subscription for you.
+
+```js
+// Simple, clean, and automatic.
+const [state, actions] = useAppStore(counterBox);
+```
+
