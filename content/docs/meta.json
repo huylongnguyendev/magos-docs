@@ -1,0 +1,9 @@
+{
+  "title": "Magos Documentation",
+  "pages": [
+    "index",
+    "installation",
+    "guides",
+    "quick-reference"
+  ]
+}

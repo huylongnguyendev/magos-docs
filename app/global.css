@@ -1,3 +1,119 @@
 @import "tailwindcss";
+
 @import "fumadocs-ui/css/dusk.css";
+
 @import "fumadocs-ui/css/preset.css";
+
+
+@theme {
+  --color-fd-background: hsl(213, 33%, 94%);
+  --color-fd-foreground: hsl(0, 0%, 3.9%);
+  --color-fd-muted: hsl(0, 0%, 96.1%);
+  --color-fd-muted-foreground: hsl(0, 0%, 45.1%);
+  --color-fd-popover: hsl(0, 0%, 98%);
+  --color-fd-popover-foreground: hsl(0, 0%, 15.1%);
+  --color-fd-card: hsl(0, 0%, 94.7%);
+  --color-fd-card-foreground: hsl(0, 0%, 3.9%);
+  --color-fd-border: hsla(0, 0%, 80%, 50%);
+  --color-fd-primary: hsl(192, 63%, 50%);
+  --color-fd-primary-foreground: hsl(0, 0%, 98%);
+  --color-fd-secondary: hsl(0, 0%, 93.1%);
+  --color-fd-secondary-foreground: hsl(0, 0%, 9%);
+  --color-fd-accent: hsla(0, 0%, 82%, 50%);
+  --color-fd-accent-foreground: hsl(0, 0%, 9%);
+  --color-fd-ring: hsl(0, 0%, 63.9%);
+}
+
+.dark {
+  --color-fd-background: hsl(216, 16%, 6%);
+  --color-fd-foreground: hsl(0, 0%, 92%);
+  --color-fd-muted: hsl(0, 0%, 12.9%);
+  --color-fd-muted-foreground: hsla(0, 0%, 70%, 0.8);
+  --color-fd-popover: hsl(0, 0%, 11.6%);
+  --color-fd-popover-foreground: hsl(0, 0%, 86.9%);
+  --color-fd-card: hsl(240, 20%, 5%);
+  --color-fd-card-foreground: hsl(0, 0%, 98%);
+  --color-fd-border: hsla(0, 0%, 40%, 20%);
+  --color-fd-primary: hsl(183, 74%, 53%);
+  --color-fd-primary-foreground: hsl(0, 0%, 9%);
+  --color-fd-secondary: hsl(0, 0%, 12.9%);
+  --color-fd-secondary-foreground: hsl(0, 0%, 92%);
+  --color-fd-accent: hsla(183, 74%, 53%, 0.03);
+  --color-fd-accent-foreground: hsl(0, 0%, 90%);
+  --color-fd-ring: hsl(0, 0%, 54.9%);
+}
+
+#nd-sidebar {
+  background-color: hsl(210, 20%, 94%);
+  color: hsl(215, 16%, 47%);
+}
+
+/* Làm khung Search hiện ra mượt hơn và có viền Glow */
+[data-search-dialog] {
+  animation: search-show 0.2s ease-out !important;
+  border: 1px solid rgba(0, 238, 238, 0.3) !important; /* Màu Cyan mờ */
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 238, 238, 0.1) !important;
+  backdrop-filter: blur(8px); /* Làm mờ hậu cảnh phía sau khung search */
+}
+
+@keyframes search-show {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.home-bg {
+  background-image: radial-gradient(circle at center, rgba(0, 238, 238, 0.05) 0%, transparent 70%);
+}
+
+/* 1. Ép z-index lên cao nhất hệ mặt trời */
+#nprogress {
+  pointer-events: none;
+  z-index: 999999 !important; 
+}
+
+/* 2. Ép thanh bar phải có màu và rực rỡ */
+#nprogress .bar {
+  background: #00eeee !important; /* Dùng màu Cyan cứng để test trước */
+  height: 4px !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  opacity: 1 !important;
+  
+  /* Hiệu ứng Neon đặc trị */
+  box-shadow: 0 0 15px #00eeee, 0 0 5px #00eeee !important;
+}
+
+/* --- CUSTOM SCROLLBAR STYLE (MAC OS STYLE) --- */
+
+/* 1. Độ rộng của scrollbar */
+::-webkit-scrollbar {
+  width: 8px;  /* Độ rộng cho thanh dọc */
+  height: 8px; /* Độ cao cho thanh ngang */
+}
+
+/* 2. Phần nền của scrollbar (Track) */
+::-webkit-scrollbar-track {
+  background: transparent; /* Để trong suốt cho sang */
+}
+
+/* 3. Tay kéo (Thumb) */
+::-webkit-scrollbar-thumb {
+  background-color: rgba(155, 155, 155, 0.3); /* Màu xám mờ nhẹ */
+  border-radius: 100px; /* Bo tròn tối đa */
+  border: 2px solid transparent; /* Tạo khoảng trống xung quanh tay kéo */
+  background-clip: content-box; /* Giúp tay kéo cách lề ra một chút */
+  transition: background-color 0.3s ease;
+}
+
+/* 4. Hiệu ứng khi di chuột vào (Hover) */
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--fd-primary); /* Đổi sang màu Cyan cho tone-sur-tone với Magos */
+}
+
+/* Hỗ trợ cho Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(155, 155, 155, 0.3) transparent;
+}

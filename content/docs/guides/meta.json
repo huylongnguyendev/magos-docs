@@ -1,0 +1,12 @@
+{
+  "title": "Guides",
+  "pages": [
+    "installation",
+    "project-structure",
+    "create-box",
+    "create-store",
+    "subscriptions",
+    "async-actions"
+  ]
+}
+
