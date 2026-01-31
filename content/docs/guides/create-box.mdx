@@ -145,6 +145,10 @@ The `actionFactory` is a function that returns an object containing all of actio
   }));
 ```
 
+<Callout title="Notic" type="warning">
+  The `actionFactory` must return an object containing `actions`.
+</Callout>
+
 <Callout title="Tips" type="success">
   **Magos** recommends using an `anonymous arrow function` for brevity. This is the designated place to define all your business logic and state transitions.
 </Callout>
@@ -177,7 +181,7 @@ When you call `createBox`, it returns a Box Instance. This instance is an object
 A Box instance typically consists of two main parts:
 
 * **getState function**: The function returns the current value of your data.
-* **actions**: The methods you defined in the actionFactory to update that data.
+* **actions**: The object contains the methods defined in the actionFactory to update the data.
 * **subscribe**: A function that allows you to listen for any changes to the state. It takes a callback that fires every time the Box updates.
 * **magos_id**: An internal unique identifier used by the Store to manage the Box.
 
@@ -189,6 +193,7 @@ In the [next guide](04-create-a-store), we will explain the `magos_id` in detail
   * The `createBox` has two required parameter. The frist one is the `initialState` and the other is the `actionFactory`.
   * The `initialState` can be almost value exclude `undefined` and **empty object** `{}`. It represents the dynamic state.
   * The `actionFactory` is a callback function where you define your logic. It provides you with a **dispatcher** (named `set`) to update your state.
+  * The `actionFactory` must return an object containing `actions`.
 </Callout>
 
 ---

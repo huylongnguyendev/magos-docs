@@ -60,12 +60,10 @@ export default function Layout({ children }: LayoutProps<"/">) {
             color="var(--fd-primary)"
             initialPosition={0.08}
             crawlSpeed={200}
-            height={1} // 3px là vừa đẹp, không quá dày, không quá mỏng
+            height={1}
             showSpinner={false}
             easing="ease"
             speed={200}
-            // Đây là linh hồn của Neon: Shadow đa lớp
-            // Lớp 1: Sáng nhẹ xung quanh. Lớp 2: Lóe sáng rực.
             shadow="0 0 8px var(--fd-primary), 0 0 4px var(--fd-primary)"
           />
           {children}

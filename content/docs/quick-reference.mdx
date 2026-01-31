@@ -12,6 +12,8 @@ import { Tabs, Tab } from "fumadocs-ui/components/tabs"
 <Tabs items={["TypeScript", "JavaScript"]}>
   <Tab value="TypeScript">
     ```typescript
+    import { createBox } from "magos"
+
     interface CountState {
       count: number
     }
@@ -29,6 +31,8 @@ import { Tabs, Tab } from "fumadocs-ui/components/tabs"
   </Tab>
   <Tab value="JavaScript">
     ```javascript
+    import { createBox } from "magos"
+
     const initialState = {
       count: 0
     }
@@ -43,15 +47,17 @@ import { Tabs, Tab } from "fumadocs-ui/components/tabs"
 </Tabs>
 
 <Callout title="Tips" type="success">
-  * **initialState** excepts `undefined`, empty object `{}` and `function`.
+  * **initialState** does not accept `undefined`, empty object `{}` and `function`.
   * If `typeof` the state is **Primitive**, you don't need to contain it inside the `object`.
   * You should use `anonymous arrow function` for the second parameter and use `prev` keyword for modify the state.
+  * The `actionFactory` must return an object containing `actions`.
   * You can use the Box without the store but if you have more than three boxes, use them with the store.
 </Callout>
 
 ---
 
 ### 2. `createStore`
+import { createStore } from "magos"
 
 ```js
 export const store = createStore({
@@ -70,7 +76,9 @@ export const store = createStore({
 ### 3. `unbox` (Vanilla JS)
 
 ```js
+import { unbox } from "magos/vanilla"
 // import the store if you create it in another file
+
 const tags = document.querySelectorAll(".count");
 
 const [state, actions, off] = unbox(store.counterBox, displays, s => s.count);
@@ -118,7 +126,7 @@ const [state] = unbox(cartBox, displays, s => s.totalItems);
 ### 4. `useAppStore` (React.js)
 
 ```js
-import { useAppStore } from 'magos';
+import { useAppStore } from 'magos/react';
 // import the store with current path
 function Counter() {
 
@@ -157,3 +165,5 @@ function Display() {
   return <span>{state.count}</span>;
 }
 ```
+
+---
