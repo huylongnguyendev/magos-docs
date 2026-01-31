@@ -146,7 +146,7 @@ The `actionFactory` is a function that returns an object containing all of actio
 ```
 
 <Callout title="Notic" type="warning">
-  The `actionFactory` must return an object containing `actions`.
+  The `actionFactory` must return an `object` of functions.
 </Callout>
 
 <Callout title="Tips" type="success">
@@ -193,7 +193,7 @@ In the [next guide](04-create-a-store), we will explain the `magos_id` in detail
   * The `createBox` has two required parameter. The frist one is the `initialState` and the other is the `actionFactory`.
   * The `initialState` can be almost value exclude `undefined` and **empty object** `{}`. It represents the dynamic state.
   * The `actionFactory` is a callback function where you define your logic. It provides you with a **dispatcher** (named `set`) to update your state.
-  * The `actionFactory` must return an object containing `actions`.
+  * The `actionFactory` must return an `object` of functions. Example: `(set) => ({ inc: () => set(...) })`
 </Callout>
 
 ---
